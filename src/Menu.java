@@ -35,9 +35,11 @@ public class Menu{
                 case 1:
                     option =1;
                     System.out.println("Please enter the name of the ride you would like recommendations for from the rides below: ");
+                    for (String name: fileHandler.getRideNames()) {
+                        System.out.println(name);
+                    }
                     System.out.println("\n** Please enter the name the exact way as shown to you i.e capital letters **\n");
-                    String name = scanner.nextLine();
-                    setRide(name);
+                    setRide(scanner.nextLine());
                     break;
                 case 2:
                     option =2;
