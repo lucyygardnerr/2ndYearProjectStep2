@@ -11,4 +11,8 @@ public class Range {
     public boolean check(double number){
         return (number >= low && number <= high);
     }
+
+    public String toString(){
+        return "The range is: " + low + " - " + high;
+    }
 }

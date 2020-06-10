@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -9,18 +10,17 @@ import java.util.List;
 
 public interface RideData {
 
-    List<Ride> getRides() throws IOException;
+    void getRidesFromFile() throws IOException;
 
     // internal Ride class used with file handling.
     class Ride {
         String name;
-        int height;
         Range heightRange;
         String wheelchair;
         int groupSize;
         Range groupRange;
         String theme;
-        List<String> types;
+        List<String> types = new ArrayList<>();
 
         Ride() {
         }
@@ -29,20 +29,20 @@ public interface RideData {
             return name;
         }
 
-        public int getHeight() {
-            return height;
+        public Range getHeightRange() {
+            return heightRange;
         }
 
         public String getWheelchair() {
             return wheelchair;
         }
 
-        public Range getGroupRange() {
-            return groupRange;
-        }
-
         public int getGroupSize() {
             return groupSize;
+        }
+
+        public Range getGroupRange() {
+            return groupRange;
         }
 
         public String getTheme() {
@@ -52,7 +52,6 @@ public interface RideData {
         public List<String> getTypes() {
             return types;
         }
-
     }
 
 }

@@ -7,19 +7,36 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 
 public class FileHandler implements RideData {
 
-    private String fileName = "Rides.txt";
     List<Ride> rides = new ArrayList<>();
 
+    public int ridesListSize(){
+        return rides.size();
+    }
+
+    public List<Ride> getRides(){
+        return rides;
+    }
+
+    public List<String> getRideNames(){
+        List<String> rideNames = new ArrayList<>();
+        for (Ride ride: rides) {
+            rideNames.add(ride.getName());
+        }
+        return rideNames;
+    }
+
     @Override
-    public List<Ride> getRides() throws IOException {
+    public void getRidesFromFile() throws IOException {
         //yes - increment the end number, save and return it
         //If no - create a new number in the file, save and return it
 
         //check if file exists first
+        String fileName = "Rides.txt";
         if(!Files.exists(Paths.get(fileName))) {
             System.out.println("File does not exist");
         }
@@ -35,28 +52,38 @@ public class FileHandler implements RideData {
             ride.wheelchair = parts[2];
             checkGroupSize(ride, parts[3]);
             ride.theme = parts[4];
-            System.out.println(Arrays.asList(parts).subList(5, parts.length));
             ride.types.addAll(Arrays.asList(parts).subList(5, parts.length));
         }
 
-        return rides;
     }
 
-    private void checkHeight(Ride ride, String height){
+    public void checkHeight(Ride ride, String height){
         if(height.equals("N")){
             return;
         }
         if (height.contains("-")){
             String[] ranges = height.split("-");
-            ride.heightRange = new Range(parseInt(ranges[0]), parseInt(ranges[1]));
+            ride.heightRange = new Range(parseDouble(ranges[0]), parseDouble(ranges[1]));
+        }
+        if( height.contains(">") && height.contains("<")){
+         //>0.8<1.2
+            String[] ranges = height.split("<");
+            //ranges[0] = >0.8
+            //ranges[1] = <1.2
+            String[] part1 = ranges[0].split(">");
+            double lowRange = parseDouble(part1[1]);
+            String[] part2 = ranges[1].split("<");
+            double highRange = parseDouble(part2[0]);
+            ride.heightRange = new Range(lowRange, highRange);
+            return;
         }
         if( height.contains(">")){
             String[] ranges = height.split(">");
-            ride.heightRange = new Range(parseInt(ranges[1]), 2.5);
+            ride.heightRange = new Range(parseDouble(ranges[1]), 2.5);
         }
         if( height.contains("<")){
             String[] ranges = height.split("<");
-            ride.heightRange = new Range(0.7, parseInt(ranges[1]));
+            ride.heightRange = new Range(0.7, parseDouble(ranges[1]));
         }
     }
 
@@ -69,7 +96,6 @@ public class FileHandler implements RideData {
             ride.groupRange = new Range(parseInt(ranges[0]), parseInt(ranges[1]));
         }
         else{
-            System.out.println(groupSize);
             ride.groupSize = parseInt(groupSize);
         }
     }

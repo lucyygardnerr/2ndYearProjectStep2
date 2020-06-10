@@ -5,6 +5,7 @@ import java.io.IOException;
 public class Step2Test {
 
     private Menu menu = new Menu();
+    FileHandler fileHandler = new FileHandler();
 
     @Test
     public void testQuit() throws IOException {
@@ -35,11 +36,16 @@ public class Step2Test {
     @Test
     public void testSetHeight() {
         Group group = new Group();
-        System.out.println("Within rage of 1 - 2.5: ");
-        group.setHeight(1);
+        RideData.Ride ride = new RideData.Ride();
+        fileHandler.checkHeight(ride, ">1");
+        group.setHeight(1.2);
         System.out.println("Group's height: " + group.getHeight());
-        System.out.println("Outwith range (2.7): ");
-        group.setHeight(2.6);
+        System.out.println("Is group height suitable for this ride: " + ride.heightRange.check(group.getHeight()));
+    }
+
+    @Test
+    public void testReadFromFile() throws IOException {
+
     }
 
 }

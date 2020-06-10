@@ -1,18 +1,16 @@
 import java.io.IOException;
+import java.sql.Array;
+import java.sql.SQLOutput;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 public class Menu{
 
     private Scanner scanner = new Scanner(System.in);
     private String eOrP;
     private Group group = new Group();
-    private int groupSize;
-    private List<String> rideTypes = new ArrayList<>();
     private List<String> reasons = new ArrayList<>();
     private List<RideData.Ride> applicableRides = new ArrayList<>();
     private RideData.Ride ride = new RideData.Ride();
@@ -25,32 +23,27 @@ public class Menu{
     }
 
     void start() throws IOException {
-        // Ride chosen is Rex Rampage
-        System.out.println("Welcome to Rex Rampage!");
+        System.out.println("Welcome to the Time Travellers Theme Park!");
 
         printMenu();
+        fileHandler.getRidesFromFile();
+        applicableRides = fileHandler.getRides();
 
-        boolean run = true;
-
-        while(run) {
+        while(true) {
             int input = scanner.nextInt();
             switch (input) {
                 case 1:
                     option =1;
-                    ride = new RexRampage();
-                    System.out.println("Please enter information on your group so we can generate your recommendations! \nPlease enter your first name: ");
-                    group.setName(scanner.next());
-                    email();
+                    System.out.println("Please enter the name of the ride you would like recommendations for from the rides below: ");
+                    System.out.println("\n** Please enter the name the exact way as shown to you i.e capital letters **\n");
+                    String name = scanner.nextLine();
+                    setRide(name);
                     break;
                 case 2:
                     option =2;
-                    fileHandler.getRides();
-                    System.out.println("Please enter information on your group so we can generate your recommendations! \nPlease enter your first name: ");
-                    group.setName(scanner.next());
-                    email();
+                    name();
                 case 3:
                     System.out.println("Goodbye - thank you for visiting.");
-                    run = false;
                     System.exit(0);
             }
         }
@@ -59,14 +52,47 @@ public class Menu{
     private void printMenu(){
         System.out.println("\nPlease choose an option:");
         System.out.println();
-        System.out.println("1. Get recommendations for Rex Rampage.");
+        System.out.println("1. Get recommendations for 1 ride of your choice.");
         System.out.println("2. Get recommendations for the entire theme park");
         System.out.println("3. Quit.");
         System.out.println();
     }
 
+    private void setRide(String rideName) throws IOException {
+
+        boolean exists = false;
+        while(!exists){
+            if(fileHandler.getRideNames().contains(rideName)){
+                exists = true;
+            }
+            System.out.println("\nRide does not exist!\n** Please enter a ride name from the list shown: ");
+            rideName = scanner.nextLine();
+        }
+        for (RideData.Ride rollerCoaster: fileHandler.rides) {
+            if (rollerCoaster.getName().equals(rideName)) {
+                ride = rollerCoaster;
+            }
+        }
+
+        System.out.println("\nRide chosen is: " + ride.getName() + "\n");
+        System.out.println("Details on " + ride.getName() + " Height Range: " + ride.heightRange + " Wheelchair:  " + ride.wheelchair + " GroupSize: " + ride.groupSize + " Group Range: " + ride.groupRange + " Theme: " + ride.theme + " Types: " + ride.types);
+        name();
+
+    }
+
+    private void name() throws IOException {
+        System.out.println("Please enter information on your group so we can generate your recommendations! \n\nPlease enter your first name: ");
+        String name = scanner.next();
+        while(!Pattern.matches("[a-zA-Z]+", name)) {
+            System.out.println("\nInvalid Name - ** Please re-enter only use upper or lower case letters **");
+            name =  scanner.next();
+        }
+        group.setName(name);
+        email();
+    }
+
     private void email() throws IOException {
-        System.out.println("Hi " + group.getName() + " would you prefer me to print your recommendations or email them to you? \n ** Please enter capital E for email or P for print** ");
+        System.out.println("\nHi " + group.getName() + "\nWould you prefer me to only print your recommendations on the screen or would you also like a copy emailed to you? \n** Please enter capital E for email or P for print** ");
         eOrP = scanner.next();
         if(!eOrP.equals("E") && !eOrP.equals("P")){
             System.out.println("Invalid - please enter either E or P: ");
@@ -81,19 +107,32 @@ public class Menu{
             setGroupSize();
         }
         else if(eOrP.equals("P")) {
-            System.out.println("You have chosen to print your recommendations.");
+            System.out.println("You have chosen to only print your recommendations.");
             setGroupSize();
         }
     }
 
     private void setGroupSize() throws IOException {
-        System.out.println("\nHow many people are in your party? ");
-        groupSize = scanner.nextInt();
+        System.out.println("\nHow many people are in your group? ");
+
+        /*
+        String inputString = Integer.toString(input);
+        if(Pattern.matches("[a-zA-Z]+", inputString)){
+            System.out.println("\nPlease re-enter using only numbers: ");
+            input = scanner.nextInt();
+        }*/
+
+        int input = scanner.nextInt();
+        if(input > 1000){
+            System.out.println("\nSorry we have a group limit of 100 here at the Theme Park. Please enter a smaller group number: ");
+            input = scanner.nextInt();
+        }
+        group.setGroupSize(input);
         setHeight();
     }
 
     private void setHeight() throws IOException {
-        System.out.println("Please use the height chart next to this terminal to measure the height of the SMALLEST group in your group. \n** Please enter height in meters? e.g 1.2 **");
+        System.out.println("\nPlease use the height chart next to this terminal to measure the height of the SMALLEST group in your group. \n** Please enter height in meters? e.g 1.2 **");
         boolean validated = group.setHeight(scanner.nextDouble());
         while(!validated){
             validated = group.setHeight(scanner.nextDouble());
@@ -102,7 +141,7 @@ public class Menu{
     }
 
     private void setWheelchair() throws IOException {
-        System.out.println("Is anyone in your group a wheelchair user ? \n** Please enter capital Y for yes and N for no **");
+        System.out.println("\nIs anyone in your group a wheelchair user? \n** Please enter capital Y for yes and N for no **");
         boolean validated = group.setWheelchair(scanner.next());
         while(!validated){
             validated = group.setWheelchair(scanner.next());
@@ -120,7 +159,7 @@ public class Menu{
         types.add("Horror");
         types.add("Adrenaline");
 
-        System.out.println("Which of the following ride types does your group like? ");
+        System.out.println("\nWhich of the following ride types does your group like? ");
         System.out.println("** Please enter capital Y for yes and N for no **");
         for (int i=0; i< types.size(); i++){
             System.out.println(types.get(i) + ": ");
@@ -131,7 +170,7 @@ public class Menu{
                 i--;
             }
             if(input.equals("Y")){
-                rideTypes.add(types.get(i));
+                group.addRideType(types.get(i));
             }
         }
 
@@ -148,7 +187,29 @@ public class Menu{
 
         System.out.println("\nRecommendations for " + group.getName() + "'s group created on " + setDateTime() + "->");
 
-        preOrder(buildTree());
+        LinkedBinaryTree.Node<Supplier<Boolean>> groupSizeNo = new LinkedBinaryTree.Node<>(this::addGroupSize, null,null);
+        LinkedBinaryTree.Node<Supplier<Boolean>> groupSizeYes = new LinkedBinaryTree.Node<>(null, null, null);
+        LinkedBinaryTree.Node<Supplier<Boolean>> checkGroupSizeNode = new LinkedBinaryTree.Node<>(this::checkGroupSize, groupSizeYes, groupSizeNo);
+        LinkedBinaryTree.Node<Supplier<Boolean>> groupSizeRoot = new LinkedBinaryTree.Node<>(this::groupSizeExists, checkGroupSizeNode, null);
+
+        LinkedBinaryTree.Node<Supplier<Boolean>> heightNo = new LinkedBinaryTree.Node<>(this::addHeight, null, null);
+        LinkedBinaryTree.Node<Supplier<Boolean>> heightYes = new LinkedBinaryTree.Node<>(null, null, null);
+        LinkedBinaryTree.Node<Supplier<Boolean>> checkHeightNode = new LinkedBinaryTree.Node<>(this::checkHeight, heightYes, heightNo);
+        LinkedBinaryTree.Node<Supplier<Boolean>> heightRoot = new LinkedBinaryTree.Node<>(this::heightExists, checkHeightNode, null);
+
+        LinkedBinaryTree.Node<Supplier<Boolean>> wheelchairNo = new LinkedBinaryTree.Node<>(null, null, null);
+        LinkedBinaryTree.Node<Supplier<Boolean>> wheelchairYes = new LinkedBinaryTree.Node<>(this::addwheelchair, null, null);
+        LinkedBinaryTree.Node<Supplier<Boolean>> checkWheelchairNode = new LinkedBinaryTree.Node<>(this::checkWheelchair, wheelchairYes, wheelchairNo);
+        LinkedBinaryTree.Node<Supplier<Boolean>> wheelchairRoot = new LinkedBinaryTree.Node<>(this::wheelchairExists, checkWheelchairNode, null);
+
+        LinkedBinaryTree.Node<Supplier<Boolean>> typesNo = new LinkedBinaryTree.Node<>(this::addTypes, null, null);
+        LinkedBinaryTree.Node<Supplier<Boolean>> typesYes = new LinkedBinaryTree.Node<>(null, null, null);
+        LinkedBinaryTree.Node<Supplier<Boolean>> typesRoot = new LinkedBinaryTree.Node<>(this::checkTypes, typesYes, typesNo);
+
+        preOrder(groupSizeRoot);
+        preOrder(heightRoot);
+        preOrder(wheelchairRoot);
+        preOrder(typesRoot);
 
         printEndOptions();
     }
@@ -157,166 +218,204 @@ public class Menu{
 
         System.out.println("\nRecommendations for " + group.getName() + "'s group created on " + setDateTime() + "->");
 
-        ride = fileHandler.rides.get(0);
-        LinkedBinaryTree.Node<Supplier<Boolean>> root = buildTree();
+        LinkedBinaryTree.Node<Supplier<Boolean>> groupSizeNo = new LinkedBinaryTree.Node<>(this::addGroupSize, null,null);
+        LinkedBinaryTree.Node<Supplier<Boolean>> groupSizeYes = new LinkedBinaryTree.Node<>(null, null, null);
+        LinkedBinaryTree.Node<Supplier<Boolean>> checkGroupSizeNode = new LinkedBinaryTree.Node<>(this::checkGroupSize, groupSizeYes, groupSizeNo);
+        LinkedBinaryTree.Node<Supplier<Boolean>> groupSizeRoot = new LinkedBinaryTree.Node<>(this::groupSizeExists, checkGroupSizeNode, null);
 
-        for(int i = 0; i < fileHandler.rides.size(); i++){
-            ride = fileHandler.rides.get(i);
-            preOrder(root);
+        LinkedBinaryTree.Node<Supplier<Boolean>> heightNo = new LinkedBinaryTree.Node<>(this::addHeight, null, null);
+        LinkedBinaryTree.Node<Supplier<Boolean>> heightYes = new LinkedBinaryTree.Node<>(null, null, null);
+        LinkedBinaryTree.Node<Supplier<Boolean>> checkHeightNode = new LinkedBinaryTree.Node<>(this::checkHeight, heightYes, heightNo);
+        LinkedBinaryTree.Node<Supplier<Boolean>> heightRoot = new LinkedBinaryTree.Node<>(this::heightExists, checkHeightNode, null);
+
+        LinkedBinaryTree.Node<Supplier<Boolean>> wheelchairNo = new LinkedBinaryTree.Node<>(null, null, null);
+        LinkedBinaryTree.Node<Supplier<Boolean>> wheelchairYes = new LinkedBinaryTree.Node<>(this::addwheelchair, null, null);
+        LinkedBinaryTree.Node<Supplier<Boolean>> checkWheelchairNode = new LinkedBinaryTree.Node<>(this::checkWheelchair, wheelchairYes, wheelchairNo);
+        LinkedBinaryTree.Node<Supplier<Boolean>> wheelchairRoot = new LinkedBinaryTree.Node<>(this::wheelchairExists, checkWheelchairNode, null);
+
+        LinkedBinaryTree.Node<Supplier<Boolean>> typesNo = new LinkedBinaryTree.Node<>(this::addTypes, null, null);
+        LinkedBinaryTree.Node<Supplier<Boolean>> typesYes = new LinkedBinaryTree.Node<>(null, null, null);
+        LinkedBinaryTree.Node<Supplier<Boolean>> typesRoot = new LinkedBinaryTree.Node<>(this::checkTypes, typesYes, typesNo);
+
+        List<RideData.Ride> rides = fileHandler.getRides();
+
+        ride = rides.get(0);
+
+        for(int i = 0; i < fileHandler.ridesListSize(); i++){
+            ride = rides.get(i);
+            preOrder(groupSizeRoot);
+            preOrder(heightRoot);
+            preOrder(wheelchairRoot);
+            preOrder(typesRoot);
         }
 
         printEndOptionsFull();
 
     }
 
-    private LinkedBinaryTree.Node<Supplier<Boolean>> buildTree(){
-        LinkedBinaryTree.Node<Supplier<Boolean>> rideT = new LinkedBinaryTree.Node<>(() ->true, null, null );
-
-        LinkedBinaryTree.Node<Supplier<Boolean>> wheelchairYes4 = new LinkedBinaryTree.Node<>(this::checkTypes, rideT, rideT );
-        LinkedBinaryTree.Node<Supplier<Boolean>> wheelchairNo4 = new LinkedBinaryTree.Node<>(this::checkTypes, rideT, rideT );
-        LinkedBinaryTree.Node<Supplier<Boolean>> wheelchairYes3 = new LinkedBinaryTree.Node<>(this::checkTypes, rideT, rideT );
-        LinkedBinaryTree.Node<Supplier<Boolean>> wheelchairNo3 = new LinkedBinaryTree.Node<>(this::checkTypes, rideT, rideT );
-        LinkedBinaryTree.Node<Supplier<Boolean>> wheelchairYes2 = new LinkedBinaryTree.Node<>(this::checkTypes, rideT, rideT );
-        LinkedBinaryTree.Node<Supplier<Boolean>> wheelchairNo2 = new LinkedBinaryTree.Node<>(this::checkTypes, rideT, rideT );
-        LinkedBinaryTree.Node<Supplier<Boolean>> wheelchairYes = new LinkedBinaryTree.Node<>(this::checkTypes, rideT, rideT );
-        LinkedBinaryTree.Node<Supplier<Boolean>> wheelchairNo = new LinkedBinaryTree.Node<>(this::checkTypes, rideT, rideT );
-
-        LinkedBinaryTree.Node<Supplier<Boolean>> heightNo = new LinkedBinaryTree.Node<>(this::checkWheelchair, wheelchairNo, wheelchairYes );
-        LinkedBinaryTree.Node<Supplier<Boolean>> heightYes = new LinkedBinaryTree.Node<>(this::checkWheelchair, wheelchairNo2, wheelchairYes2 );
-
-        LinkedBinaryTree.Node<Supplier<Boolean>> heightNo2 = new LinkedBinaryTree.Node<>(this::checkWheelchair, wheelchairNo3, wheelchairYes3 );
-        LinkedBinaryTree.Node<Supplier<Boolean>> heightYes2 = new LinkedBinaryTree.Node<>(this::checkWheelchair, wheelchairNo4, wheelchairYes4 );
-        LinkedBinaryTree.Node<Supplier<Boolean>> groupYes = new LinkedBinaryTree.Node<>(this::checkHeight, heightNo2, heightYes2 );
-
-        LinkedBinaryTree.Node<Supplier<Boolean>> height = new LinkedBinaryTree.Node<>(this::checkHeight, heightNo, heightYes );
-        LinkedBinaryTree.Node<Supplier<Boolean>> groupNo = new LinkedBinaryTree.Node<>(this::checkHeight, height, null );
-
-        return new LinkedBinaryTree.Node<>(this::checkGroupSize, groupNo, groupYes);
-    }
-
     private void preOrder(LinkedBinaryTree.Node<Supplier<Boolean>> node) {
-        if (node == null) {
+        if (node == null || node.getElement() == null) {
             return;
         }
-        if(node.getElement().get()){
+        if (node.getElement().get()) {
             preOrder(node.getLeft());
-        }
-        else {
+        } else {
             preOrder(node.getRight());
         }
     }
 
     private boolean checkTypes(){
-        boolean types;
-        if(rideTypes.contains("Kids") && !ride.types.contains("Kids")){
-            reasons.add("- This ride is not intended for kids.");
-            applicableRides.remove(ride);
-            types = false;
-        }
-        if(!rideTypes.contains("Adrenaline") && !ride.types.contains("Adrenaline")){
-            reasons.add("- This ride is in the adrenaline category.");
-            applicableRides.remove(ride);
-            types = false;
-        }
-        if(!rideTypes.contains("Horror") && !ride.types.contains("Horror")){
-            reasons.add("- This ride is in the horror category.");
-            applicableRides.remove(ride);
-            types = false;
+        boolean types = true;
 
-        }
-        if(!rideTypes.contains("Water") && !ride.types.contains("Water")){
-            reasons.add("- This ride is in the water category.");
-            applicableRides.remove(ride);
-            types = false;
-        }
-        else{
-            types = true;
+        for (String type : ride.getTypes()) {
+            if(type.contains("Kids") && !group.getRideTypes().contains("Kids")){
+                applicableRides.remove(ride);
+                types = false;
+            }
+            if(type.contains("Adrenaline") && !group.getRideTypes().contains("Adrenaline")){
+                applicableRides.remove(ride);
+                types = false;
+            }
+            if(type.contains("Water") && !group.getRideTypes().contains("Water")){
+                applicableRides.remove(ride);
+                types = false;
+            }
+            if(type.contains("Horror") && !group.getRideTypes().contains("Horror")){
+                applicableRides.remove(ride);
+                types = false;
+            }
         }
         return types;
     }
 
-    private boolean checkWheelchair(){
-        if(group.isWheelchair().equals("Y") && ride.wheelchair.equals("N")){
-            reasons.add("- This ride is not suitable for wheelchair users.");
-            applicableRides.remove(ride);
-            return false;
-        }
-        return true;
+
+    private boolean addTypes(){
+        reasons.add("- " + ride.getName() + " is in the " + ride.getTypes() + " category(s)");
+        return false;
+    }
+
+    private boolean wheelchairExists(){
+        return ride.getWheelchair().equals("N");
+    }
+
+    private boolean checkWheelchair(){ return group.isWheelchair().equals("Y");
+    }
+
+    private boolean addwheelchair(){
+        reasons.add(ride.getName() + " is not suitable for wheelchair users.");
+        applicableRides.remove(ride);
+        return false;
+    }
+
+    private boolean heightExists(){
+        return ride.getHeightRange() != null;
     }
 
     private boolean checkHeight(){
-        if(ride.heightRange != null){
-            if(!ride.heightRange.check(group.getHeight())){
-                reasons.add("- The smallest person in your group is not a suitable height for this ride.");
+        return ride.heightRange.check(group.getHeight());
+    }
+
+    private boolean addHeight(){
+        reasons.add("- Someone in your group is not a suitable height for " + ride.getName());
+        applicableRides.remove(ride);
+        return false;
+    }
+
+    private boolean groupSizeExists(){
+        if(ride.getGroupRange() != null || ride.getGroupSize() != 0){
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkGroupSize(){
+        if(ride.getGroupRange() != null){
+            if(!ride.groupRange.check(group.getGroupSize())){
                 applicableRides.remove(ride);
                 return false;
             }
         }
-        if(group.getHeight() < ride.height){
-            reasons.add("- The smallest person in your group is not a suitable height for this ride.");
+        if(ride.getGroupSize() == 0){
+            return true;
+        }
+        if(group.getGroupSize() != ride.getGroupSize()) {
             applicableRides.remove(ride);
             return false;
         }
-        return true;
-    }
-
-    private boolean checkGroupSize(){
-        if(ride.groupRange != null){
-            if(!ride.groupRange.check(groupSize)){
-                reasons.add("- This ride is only suitable for groups of 2 people.");
-                return false;
-            }
-        }
-        if(groupSize != ride.groupSize) {
-            reasons.add("- This ride is only suitable for groups of 2 people.");
-            return false;
-        }
         else{
-            applicableRides.add(ride);
             return true;
         }
     }
 
+    private boolean addGroupSize(){
+        reasons.add("- " + ride.getName() + " is not suitable for the size of your group.");
+        return false;
+    }
+
     private void printEndOptionsFull() throws IOException {
+        System.out.println("Applicable Rides: ");
+        for (RideData.Ride ride : applicableRides){
+            System.out.println(ride.getName() + "\n");
+        }
         System.out.println("\nMedieval Zone: ");
+        boolean medieval = false;
         for (RideData.Ride ride: applicableRides){
             if(ride.theme.equals("Medieval")){
                 System.out.println("\n" + ride.name);
+                medieval = true;
             }
+        }
+        if(!medieval){
+            System.out.println("No medieval rides where suitable for your group.");
         }
 
         System.out.println("\nFuturistic Zone: ");
+        boolean futuristic = false;
         for (RideData.Ride ride: applicableRides){
             if(ride.theme.equals("Futuristic")){
                 System.out.println(ride.name);
+                futuristic = true;
             }
+        }
+        if(!futuristic){
+            System.out.println("No Futuristic rides where suitable for your group.");
         }
 
         System.out.println("\nJurassic Zone: ");
+        boolean jurassic = false;
         for (RideData.Ride ride: applicableRides){
             if(ride.theme.equals("Jurassic")){
                 System.out.println(ride.name);
+                jurassic = true;
             }
+        }
+        if(!jurassic){
+            System.out.println("No Jurassid rides where suitable for your group.");
         }
 
         System.out.println("\nIndustrial Zone: ");
+        boolean industrial = false;
         for (RideData.Ride ride: applicableRides){
             if(ride.theme.equals("Industrial")){
                 System.out.println(ride.name);
+                industrial = true;
             }
+        }
+        if(!industrial){
+            System.out.println("No Industrial rides where suitable for your group.");
         }
 
         lastOptions();
     }
     private void printEndOptions() throws IOException {
         if(reasons.size() != 0){
-            System.out.println("\nBased on your inputs Rex Rampage is not suitable for your party because: ");
+            System.out.println("\nBased on your inputs " + ride.getName() + " is not suitable for your party because: ");
             for (String reason : reasons) {
                 System.out.println(reason);
             }
         }
         else{
-            System.out.println("Rex Rampage is suitable for your party - enjoy!");
+            System.out.println(ride.getName() + " is suitable for your party - enjoy!");
         }
 
         lastOptions();
@@ -329,7 +428,7 @@ public class Menu{
         switch (input){
             case "R":
                 reasons.clear();
-                rideTypes.clear();
+                group.clearRideTypes();
                 email();
                 break;
             case "C":

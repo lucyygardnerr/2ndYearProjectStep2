@@ -1,22 +1,52 @@
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
-public class Group {
+class Group {
 
-    String name;
-    String wheelchair;
-    String email;
-    double height;
-    List rides;
+    private String name;
+    private String wheelchair;
+    private String email;
+    private double height;
+    private int groupSize;
 
-    public Group(){
-
+    public List<String> getRideTypes() {
+        return rideTypes;
     }
 
-    public String isWheelchair() {
+    public String getWheelchair() {
         return wheelchair;
     }
 
-    public boolean setWheelchair(String wheelchair) {
+    public void clearRideTypes() {
+        rideTypes.clear();
+
+    }
+
+    public void addRideType(String rideType) {
+        rideTypes.add(rideType);
+
+    }
+
+    private List<String> rideTypes = new ArrayList<>();
+
+    public int getGroupSize() {
+        return groupSize;
+    }
+
+    public void setGroupSize(int groupSize) {
+        this.groupSize = groupSize;
+    }
+
+    Group(){
+
+    }
+
+    String isWheelchair() {
+        return wheelchair;
+    }
+
+    boolean setWheelchair(String wheelchair) {
         if(!wheelchair.equals("Y") && !wheelchair.equals("N")){
             System.out.println("Please enter either capital letter Y or N: ");
             return false;
@@ -27,20 +57,11 @@ public class Group {
         }
     }
 
-    public void setRides(List rides) {
-        this.rides = rides;
-    }
-
-    public List getRides() {
-
-        return rides;
-    }
-
-    public String getEmail() {
+    String getEmail() {
         return email;
     }
 
-    public boolean setEmail(String email) {
+    boolean setEmail(String email) {
         if(validateEmail(email)){
             this.email = email;
             System.out.println("Thank you, your recommendations will be emailed to " + email);
@@ -52,35 +73,35 @@ public class Group {
         }
     }
 
-    public boolean validateEmail(String email){
-        if(email.contains("@")){
-            return true;
-        }
-        else{
-            return false;
-        }
+    private boolean validateEmail(String email){
+        return email.contains("@");
     }
 
-    public double getHeight() {
+    double getHeight() {
         return height;
     }
 
-    public boolean setHeight(double height) {
-        if(height >= 1 && height < 2.5) {
+    boolean setHeight(double height) {
+        /*String stringHeight = Double.toString(height);
+        if(Pattern.matches("[a-zA-Z]+", stringHeight)){
+            System.out.println("Please re-enter only using numbers: ");
+            return false;
+        }*/
+        if(height >= 0.7 && height < 2.5) {
             this.height = height;
             return true;
         }
         else{
-            System.out.println("Please re-enter a normal height: ");
+            System.out.println("Please re-enter a normal height (between 0.7 and 2.5m) : ");
             return false;
         }
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    void setName(String name) {
         this.name = name;
     }
 }
