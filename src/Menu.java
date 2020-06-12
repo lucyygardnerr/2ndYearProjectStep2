@@ -1,6 +1,5 @@
+// LUCY GARDNER GMB18183
 import java.io.IOException;
-import java.sql.Array;
-import java.sql.SQLOutput;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Supplier;
@@ -34,12 +33,7 @@ public class Menu{
             switch (input) {
                 case 1:
                     option =1;
-                    System.out.println("Please enter the name of the ride you would like recommendations for from the rides below: ");
-                    for (String name: fileHandler.getRideNames()) {
-                        System.out.println(name);
-                    }
-                    System.out.println("\n** Please enter the name the exact way as shown to you i.e capital letters **\n");
-                    setRide(scanner.nextLine());
+                    setRide();
                     break;
                 case 2:
                     option =2;
@@ -60,8 +54,13 @@ public class Menu{
         System.out.println();
     }
 
-    private void setRide(String rideName) throws IOException {
-
+    private void setRide() throws IOException {
+        System.out.println("Please enter the name of the ride you would like recommendations for from the rides below: ");
+        for (String name: fileHandler.getRideNames()) {
+            System.out.println(name);
+        }
+        System.out.println("\n** Please enter the name the exact way as shown to you i.e capital letters **\n");
+        String rideName = scanner.nextLine();
         boolean exists = false;
         while(!exists){
             if(fileHandler.getRideNames().contains(rideName)){
@@ -324,10 +323,7 @@ public class Menu{
     }
 
     private boolean groupSizeExists(){
-        if(ride.getGroupRange() != null || ride.getGroupSize() != 0){
-            return true;
-        }
-        return false;
+        return ride.getGroupRange() != null || ride.getGroupSize() != 0;
     }
 
     private boolean checkGroupSize(){
@@ -355,15 +351,12 @@ public class Menu{
     }
 
     private void printEndOptionsFull() throws IOException {
-        System.out.println("Applicable Rides: ");
-        for (RideData.Ride ride : applicableRides){
-            System.out.println(ride.getName() + "\n");
-        }
+
         System.out.println("\nMedieval Zone: ");
         boolean medieval = false;
         for (RideData.Ride ride: applicableRides){
             if(ride.theme.equals("Medieval")){
-                System.out.println("\n" + ride.name);
+                System.out.println(ride.name);
                 medieval = true;
             }
         }
@@ -435,11 +428,11 @@ public class Menu{
                 break;
             case "C":
                 if(eOrP.equals("P")){
-                    System.out.println("Thank you " + group.getName() + " for visiting - we hope you enjoyed your time at Rex Rampage!");
+                    System.out.println("Thank you " + group.getName() + " for visiting - we hope you enjoyed your time at Time Travellers Theme Park!");
                     System.exit(0);
                 }
                 else{
-                    System.out.println("Thank you " + group.getName() + ", your reommendations have been emailed to " + group.getEmail() + ". We hope you enjoyed your time at Rex Rampage!");
+                    System.out.println("Thank you " + group.getName() + ", your recommendations have been emailed to " + group.getEmail() + ". We hope you enjoyed your time at Time Travellers Theme Park!");
                     System.exit(0);
                 }
         }

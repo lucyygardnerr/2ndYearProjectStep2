@@ -1,7 +1,5 @@
-import java.util.List;
-
+// LUCY GARDNER GMB18183
 public interface Position<E> {
 
     E getElement();
-    Position<E> getParent();
 }

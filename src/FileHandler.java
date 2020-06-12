@@ -1,3 +1,4 @@
+// LUCY GARDNER GMB18183
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -6,7 +7,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 
@@ -14,15 +14,15 @@ public class FileHandler implements RideData {
 
     List<Ride> rides = new ArrayList<>();
 
-    public int ridesListSize(){
+    int ridesListSize(){
         return rides.size();
     }
 
-    public List<Ride> getRides(){
+    List<Ride> getRides(){
         return rides;
     }
 
-    public List<String> getRideNames(){
+    List<String> getRideNames(){
         List<String> rideNames = new ArrayList<>();
         for (Ride ride: rides) {
             rideNames.add(ride.getName());
@@ -57,7 +57,7 @@ public class FileHandler implements RideData {
 
     }
 
-    public void checkHeight(Ride ride, String height){
+    void checkHeight(Ride ride, String height){
         if(height.equals("N")){
             return;
         }

@@ -1,3 +1,4 @@
+// LUCY GARDNER GMB18183
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,31 +26,27 @@ public interface RideData {
         Ride() {
         }
 
-        public String getName() {
+        String getName() {
             return name;
         }
 
-        public Range getHeightRange() {
+        Range getHeightRange() {
             return heightRange;
         }
 
-        public String getWheelchair() {
+        String getWheelchair() {
             return wheelchair;
         }
 
-        public int getGroupSize() {
+        int getGroupSize() {
             return groupSize;
         }
 
-        public Range getGroupRange() {
+        Range getGroupRange() {
             return groupRange;
         }
 
-        public String getTheme() {
-            return theme;
-        }
-
-        public List<String> getTypes() {
+        List<String> getTypes() {
             return types;
         }
     }

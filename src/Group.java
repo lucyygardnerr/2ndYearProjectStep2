@@ -1,7 +1,6 @@
+// LUCY GARDNER GMB18183
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
-
 class Group {
 
     private String name;
@@ -10,31 +9,27 @@ class Group {
     private double height;
     private int groupSize;
 
-    public List<String> getRideTypes() {
+    List<String> getRideTypes() {
         return rideTypes;
     }
 
-    public String getWheelchair() {
-        return wheelchair;
-    }
-
-    public void clearRideTypes() {
+    void clearRideTypes() {
         rideTypes.clear();
 
     }
 
-    public void addRideType(String rideType) {
+    void addRideType(String rideType) {
         rideTypes.add(rideType);
 
     }
 
     private List<String> rideTypes = new ArrayList<>();
 
-    public int getGroupSize() {
+    int getGroupSize() {
         return groupSize;
     }
 
-    public void setGroupSize(int groupSize) {
+    void setGroupSize(int groupSize) {
         this.groupSize = groupSize;
     }
 
