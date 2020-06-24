@@ -1,4 +1,5 @@
 // LUCY GARDNER GMB18183
+//Range class to provide the ability to set the height or group size of a ride to a range between 2 numbers
 public class Range {
 
     private double low;

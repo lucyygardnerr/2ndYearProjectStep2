@@ -10,7 +10,10 @@ import java.util.List;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 
-public class FileHandler implements RideData {
+/* This class reads in the information about every ride in the park from a file
+   and assigns the data to a list of rides.
+*/
+class FileHandler {
 
     List<Ride> rides = new ArrayList<>();
 
@@ -22,19 +25,16 @@ public class FileHandler implements RideData {
         return rides;
     }
 
+    // returns a list of just the ride names for ease of use in other methods i.e printing the rides in the park
     List<String> getRideNames(){
         List<String> rideNames = new ArrayList<>();
         for (Ride ride: rides) {
-            rideNames.add(ride.getName());
+            rideNames.add(ride.getName().toUpperCase());
         }
         return rideNames;
     }
 
-    @Override
-    public void getRidesFromFile() throws IOException {
-        //yes - increment the end number, save and return it
-        //If no - create a new number in the file, save and return it
-
+    void getRidesFromFile() throws IOException {
         //check if file exists first
         String fileName = "Rides.txt";
         if(!Files.exists(Paths.get(fileName))) {
@@ -43,6 +43,10 @@ public class FileHandler implements RideData {
 
         BufferedReader br = new BufferedReader(new FileReader("Rides.txt"));
 
+        /* breaks down each line in the file using ','s to separate each factor
+           i.e ride name, group size etc
+           creates a ew ride ofr each line and assigns the ride data to the new ride
+        */
         for (String line = br.readLine(); line != null; line = br.readLine()){
             String parts[] = line.split(", ");
             Ride ride = new Ride();
@@ -57,15 +61,19 @@ public class FileHandler implements RideData {
 
     }
 
-    void checkHeight(Ride ride, String height){
+    private void checkHeight(Ride ride, String height){
+        /* This method firstly check if there is a height restriction in place for the ride
+           - if not the method goes no further
+           - if there is a height restriction the method then goes on to check:
+             -if it is a range between 2 numbers
+             - if it is got to be larger than a number
+             -if it got to be smaller than a number
+           - for each of the above cases it then goes on to appropriately set the height of the ride
+         */
         if(height.equals("N")){
             return;
         }
-        if (height.contains("-")){
-            String[] ranges = height.split("-");
-            ride.heightRange = new Range(parseDouble(ranges[0]), parseDouble(ranges[1]));
-        }
-        if( height.contains(">") && height.contains("<")){
+        if(height.contains(">") && height.contains("<")){
          //>0.8<1.2
             String[] ranges = height.split("<");
             //ranges[0] = >0.8
@@ -77,17 +85,23 @@ public class FileHandler implements RideData {
             ride.heightRange = new Range(lowRange, highRange);
             return;
         }
-        if( height.contains(">")){
+        if(height.contains(">")){
             String[] ranges = height.split(">");
             ride.heightRange = new Range(parseDouble(ranges[1]), 2.5);
         }
-        if( height.contains("<")){
+        if(height.contains("<")){
             String[] ranges = height.split("<");
             ride.heightRange = new Range(0.7, parseDouble(ranges[1]));
         }
     }
 
     private void checkGroupSize(Ride ride, String groupSize){
+        /* This method firstly check if there is a group size restriction in place for the ride
+           - if not the method goes no further
+           - if there is a group size restriction the method then goes on to check if it is a range between 2 numbers
+               - if so it then goes on to appropriately set the group size of the ride as a range
+           - if it is just 1 number it assigns it to the group size of the ride
+         */
         if(groupSize.equals("N")){
             return;
         }
@@ -99,6 +113,4 @@ public class FileHandler implements RideData {
             ride.groupSize = parseInt(groupSize);
         }
     }
-
-
 }
