@@ -35,13 +35,20 @@ class Group {
             return true;
         }
         else{
-            System.out.println("Sorry " + name + " " + email + " is not a valid email address.\nPlease ensure your email contains a '@':  ");
+            System.out.println("Sorry " + name + " " + email + " is not a valid email address.\nPlease ensure your email is in the format of ExampleEmail@email.com:  ");
             return false;
         }
     }
 
     private boolean validateEmail(String email){
-        return email.contains("@");
+        boolean validated = false;
+        if(!email.contains("@")){
+            return false;
+        }
+        else if (email.contains("@") && email.contains(".com")){
+            validated = true;
+        }
+        return validated;
     }
 
     int getGroupSize() {
@@ -52,7 +59,7 @@ class Group {
         try {
             int groupSizeInt = Integer.parseInt(groupSize);
             if (groupSizeInt > 1000 || groupSizeInt <= 0) {
-                System.out.println("\nIncorrect group size!\nPlease enter only NUMBERS between 1 and 1000: ");
+                System.out.println("\nInvalid group size!\nPlease enter only NUMBERS between 1 and 1000: ");
                 return false;
             }
             this.groupSize = groupSizeInt;
